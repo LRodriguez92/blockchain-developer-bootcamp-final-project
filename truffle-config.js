@@ -18,10 +18,10 @@
  *
  */
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const dotenv = require('dotenv');
+dotenv.config();
+const mnemonic = process.env.MNEMONIC;
 
 module.exports = {
   /**
@@ -57,6 +57,11 @@ module.exports = {
     // },
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
+    rinkeby: {
+    provider: () => new HDWalletProvider(mnemonic, process.env.INFURA_URL),
+    network_id: 4,       // Rinkeby's id
+    gas: 5500000,        
+    },
     // ropsten: {
     // provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/YOUR-PROJECT-ID`),
     // network_id: 3,       // Ropsten's id
