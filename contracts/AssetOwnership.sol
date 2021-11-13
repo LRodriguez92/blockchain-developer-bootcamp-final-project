@@ -19,6 +19,8 @@ contract AssetOwnership {
     struct Asset {
         string name;
         uint serial;
+        uint value;
+        address previousOwner;
         address owner;
         State state;
     }
