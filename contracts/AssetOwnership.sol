@@ -108,14 +108,14 @@ contract AssetOwnership {
     }
 
     // changes the state to LostOrStolen
-    function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) public {
+    function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) inPossession(_serial) public {
         assets[_serial].state = State.LostOrStolen;
 
         emit LogLostOrStolen(_serial);
     }
 
     // changes the state to InPossession
-    function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) public{
+    function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) isLostorStolen(_serial) public{
         assets[_serial].state = State.InPossession;
 
         emit LogInPossession(_serial);
