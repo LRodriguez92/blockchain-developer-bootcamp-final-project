@@ -5,11 +5,14 @@ contract AssetOwnership {
     // owner
     address public owner;
 
+    // number of assets
+    uint public assetCount;
+
     // assets
     mapping (uint => Asset) assets;
 
     // asset state
-    enum State{InPossesion, LostOrStolen, Destroyed, TransferredOwnership}
+    enum State{InPossesion, TransferredOwnership, LostOrStolen, Destroyed}
 
     // asset struct
     struct Asset {
@@ -18,6 +21,40 @@ contract AssetOwnership {
         address owner;
         State state;
     }
+
+
+
+
+    /*
+     * Constructor
+     */
+
+    constructor () public {
+        owner = msg.sender;
+        assetCount = 0;
+    }
+
+
+
+
+    /*
+     * Events
+     */
+
+    event LogInPossesion(uint serial);
+
+    event LogTransferredOwnership(uint serial);
+    
+    event LogLostOrStolen(uint serial);
+
+    event LogDestroyed(uint serial);
+
+
+
+
+    /*
+     * Modifiers
+     */
 
     // verifies the caller is the owner of the asset
     modifier verifyCaller (uint _serial) {
@@ -47,9 +84,16 @@ contract AssetOwnership {
         _;
     }
 
+
+
+
+    /*
+     * Functionality
+     */
+
+    // creates new Asset struct and adds it to asset mapping
     function addAsset(string memory _name, uint _serial) {
         
-        // creates new Asset struct and adds it to asset mapping
 
     }
 
