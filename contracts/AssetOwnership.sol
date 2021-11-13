@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract AssetOwnership {
@@ -24,16 +25,14 @@ contract AssetOwnership {
 
 
 
-
     /*
      * Constructor
      */
 
-    constructor () public {
+    constructor () {
         owner = msg.sender;
         assetCount = 0;
     }
-
 
 
 
@@ -48,7 +47,6 @@ contract AssetOwnership {
     event LogLostOrStolen(uint serial);
 
     event LogDestroyed(uint serial);
-
 
 
 
@@ -86,15 +84,26 @@ contract AssetOwnership {
 
 
 
-
     /*
      * Functionality
      */
 
     // creates new Asset struct and adds it to asset mapping
-    function addAsset(string memory _name, uint _serial) {
-        
+    function addAsset(string memory _name, uint _serial) public returns (bool) {
+        // create a new asset in the asset mapping
+        assets[_serial] = Asset({
+            name: _name,
+            serial: _serial,
+            owner: msg.sender,
+            state: State.InPossesion
+        });
 
+        // increase asset count
+        assetCount += 1;
+
+        emit LogInPossesion(assetCount);
+
+        return true;
     }
 
     function reportLostOrStolen(uint _serial) {
