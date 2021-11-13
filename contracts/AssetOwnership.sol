@@ -13,7 +13,7 @@ contract AssetOwnership {
     mapping (uint => Asset) assets;
 
     // asset state
-    enum State{InPossession, TransferredOwnership, LostOrStolen, Destroyed}
+    enum State{InPossession, TransferringOwnership, LostOrStolen, Destroyed}
 
     // asset struct
     struct Asset {
@@ -42,7 +42,7 @@ contract AssetOwnership {
 
     event LogInPossession(uint serial);
 
-    event LogTransferredOwnership(uint serial);
+    event LogTransferringOwnership(uint serial);
     
     event LogLostOrStolen(uint serial);
 
@@ -77,8 +77,8 @@ contract AssetOwnership {
         _;
     }
 
-    modifier transferOwnership (uint _serial) {
-        require(assets[_serial].state == State.TransferredOwnership, "Ownership has not been transferred.");
+    modifier transferringOwnership (uint _serial) {
+        require(assets[_serial].state == State.TransferringOwnership, "Ownership has not been transferred.");
         _;
     }
 
@@ -108,28 +108,30 @@ contract AssetOwnership {
     }
 
     // changes the state to LostOrStolen
-    function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) inPossession(_serial) public {
+    function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.LostOrStolen;
 
         emit LogLostOrStolen(_serial);
     }
 
     // changes the state to InPossession
-    function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) isLostorStolen(_serial) public{
+    function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isLostorStolen(_serial) public {
         assets[_serial].state = State.InPossession;
 
         emit LogInPossession(_serial);
     }
 
-    function transferOwnership(uint _serial) {
+    // transfers ownership of asset
+    function transferOwnership(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
+        assets[_serial].state = State.TransferringOwnership;
 
-        // transfers ownership of asset
-
+        emit LogTransferringOwnership(_serial);
     }
 
-    function destroyAsset(uint _serial) {
+    // changes the state to Destroyed
+    function destroyAsset(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
+        assets[_serial].state = State.Destroyed;
 
-        // chnages the state to Destroyed
-
+        emit LogDestroyed(_serial);
     }
 }
