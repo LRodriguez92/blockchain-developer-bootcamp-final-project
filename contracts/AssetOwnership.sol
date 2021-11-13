@@ -13,7 +13,7 @@ contract AssetOwnership {
     mapping (uint => Asset) assets;
 
     // asset state
-    enum State{InPossesion, TransferredOwnership, LostOrStolen, Destroyed}
+    enum State{InPossession, TransferredOwnership, LostOrStolen, Destroyed}
 
     // asset struct
     struct Asset {
@@ -40,7 +40,7 @@ contract AssetOwnership {
      * Events
      */
 
-    event LogInPossesion(uint serial);
+    event LogInPossession(uint serial);
 
     event LogTransferredOwnership(uint serial);
     
@@ -55,14 +55,14 @@ contract AssetOwnership {
      */
 
     // verifies the caller is the owner of the asset
-    modifier verifyCaller (uint _serial) {
-        require(msg.sender == assets[_serial].owner, "You are not the owner of this asset");
+    modifier verifyCaller (address _address) {
+        require(msg.sender == _address, "You are not the owner of this asset");
         _;
     }
 
     // verifies the asset is in possesion (use when transferring ownership)
-    modifier inPossesion (uint _serial) {
-        require(assets[_serial].state == State.InPossesion, "The asset is not currently in your possesion"); 
+    modifier inPossession (uint _serial) {
+        require(assets[_serial].state == State.InPossession, "The asset is not currently in your possession"); 
         _;
     }
 
@@ -95,27 +95,30 @@ contract AssetOwnership {
             name: _name,
             serial: _serial,
             owner: msg.sender,
-            state: State.InPossesion
+            state: State.InPossession
         });
 
         // increase asset count
         assetCount += 1;
 
-        emit LogInPossesion(assetCount);
+        // call an event
+        emit LogInPossession(assetCount);
 
         return true;
     }
 
-    function reportLostOrStolen(uint _serial) {
+    // changes the state to LostOrStolen
+    function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) public {
+        assets[_serial].state = State.LostOrStolen;
 
-        // changes the state to LostOrStolen
-
+        emit LogLostOrStolen(_serial);
     }
 
-    function reportFoundAndInPosession(uint _serial) {
+    // changes the state to InPossession
+    function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isNotDestroyed(_serial) public{
+        assets[_serial].state = State.InPossession;
 
-        // changes the state to InPossesion
-
+        emit LogInPossession(_serial);
     }
 
     function transferOwnership(uint _serial) {
