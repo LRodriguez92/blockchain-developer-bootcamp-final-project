@@ -20,7 +20,7 @@ contract AssetOwnership {
         string name;
         uint serial;
         uint value;
-        address payable previousOwner;
+        address payable buyer;
         address payable owner;
         State state;
     }
@@ -57,19 +57,19 @@ contract AssetOwnership {
      * Modifiers
      */
 
-    // verifies the caller is the owner of the asset
+    
+    
+    
     modifier verifyCaller (address _address) {
         require(msg.sender == _address, "You are not the owner of this asset");
         _;
     }
 
-    // verifies the asset is in possesion (use when transferring ownership)
     modifier inPossession (uint _serial) {
         require(assets[_serial].state == State.InPossession, "The asset is not currently in your possession"); 
         _;
     }
 
-    // verifies the asset is reported lost or stolen ()
     modifier isLostorStolen (uint _serial) {
         require(assets[_serial].state == State.LostOrStolen, "This asset has not been reported lost or stolen");
         _;
@@ -86,10 +86,20 @@ contract AssetOwnership {
     }
 
 
+    modifier checkValue(uint _serial) {
+        uint _value = assets[_serial].value;
+        uint amountToRefund = msg.value - _value;
+        
+        assets[_serial].buyer.transfer(amountToRefund);
+    _;
+  }
+
 
     /*
      * Functionality
      */
+
+
 
     // creates new Asset struct and adds it to asset mapping
     function addAsset(string memory _name, uint _serial, uint _value) public returns (bool) {
@@ -98,7 +108,7 @@ contract AssetOwnership {
             name: _name,
             serial: _serial,
             value: _value,
-            previousOwner: payable (address(0)),
+            buyer: payable (address(0)),
             owner: payable (msg.sender),
             state: State.InPossession
         });
@@ -112,38 +122,39 @@ contract AssetOwnership {
         return true;
     }
 
-    // changes the state to LostOrStolen
+    // STATE: LostOrStolen
     function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.LostOrStolen;
 
         emit LogLostOrStolen(_serial);
     }
 
-    // changes the state to InPossession
+    // STATE: InPossession
     function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isLostorStolen(_serial) public {
         assets[_serial].state = State.InPossession;
 
         emit LogInPossession(_serial);
     }
 
-    // transfers ownership of asset
+    // STATE: TransferringOwnership
     function transferOwnership(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.TransferringOwnership;
 
         emit LogTransferringOwnership(_serial);
     }
 
-    // changes the state to Destroyed
+    // STATE: Destroyed
     function destroyAsset(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.Destroyed;
 
         emit LogDestroyed(_serial);
     }
 
-    // changes the value of the asset
+    // VALUE: changeValueOfAsset
     function changeValueOfAsset(uint _serial, uint _value) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].value = _value;
 
         emit LogChangedValue(_serial, _value);
     }
+
 }
