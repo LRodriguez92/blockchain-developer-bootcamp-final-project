@@ -20,8 +20,8 @@ contract AssetOwnership {
         string name;
         uint serial;
         uint value;
-        address previousOwner;
-        address owner;
+        address payable previousOwner;
+        address payable owner;
         State state;
     }
 
@@ -50,6 +50,7 @@ contract AssetOwnership {
 
     event LogDestroyed(uint serial);
 
+    event LogChangedValue(uint serial, uint value);
 
 
     /*
@@ -91,12 +92,14 @@ contract AssetOwnership {
      */
 
     // creates new Asset struct and adds it to asset mapping
-    function addAsset(string memory _name, uint _serial) public returns (bool) {
+    function addAsset(string memory _name, uint _serial, uint _value) public returns (bool) {
         // create a new asset in the asset mapping
         assets[_serial] = Asset({
             name: _name,
             serial: _serial,
-            owner: msg.sender,
+            value: _value,
+            previousOwner: payable (address(0)),
+            owner: payable (msg.sender),
             state: State.InPossession
         });
 
@@ -135,5 +138,12 @@ contract AssetOwnership {
         assets[_serial].state = State.Destroyed;
 
         emit LogDestroyed(_serial);
+    }
+
+    // changes the value of the asset
+    function changeValueOfAsset(uint _serial, uint _value) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
+        assets[_serial].value = _value;
+
+        emit LogChangedValue(_serial, _value);
     }
 }
