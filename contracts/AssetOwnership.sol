@@ -179,4 +179,12 @@ contract AssetOwnership {
         emit LogTransferringOwnership(_serial);
     }
 
+    // RECEIVED
+    function receiveAsset(uint _serial) verifyCaller(assets[_serial].buyer) transferringOwnership(_serial) public {
+        assets[_serial].owner = msg.senders;
+        assets[_serial].state = State.InPossession;
+
+        emit LogInPossession(_serial);
+    }
+
 }
