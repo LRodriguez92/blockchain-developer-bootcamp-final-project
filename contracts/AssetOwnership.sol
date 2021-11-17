@@ -162,6 +162,13 @@ contract AssetOwnership {
         emit LogChangedValue(_serial, _value);
     }
 
-    // function buyAsset(uint _serial) payable 
+    function buyAsset(uint _serial) inPossession(_serial) paidEnough(assets[_serial].value) checkValue(_serial) payable public {
+        assets[_serial].owner.transfer(assets[_serial].value);
+        assets[_serial].buyer = msg.sender;
+
+        assets[_serial].state = State.TransferringOwnership;
+
+        emit LogTransferringOwnership(_serial);
+    }
 
 }
