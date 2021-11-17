@@ -13,7 +13,7 @@ contract AssetOwnership {
     mapping (uint => Asset) assets;
 
     // asset state
-    enum State{InPossession, sold, TransferringOwnership, LostOrStolen, Destroyed}
+    enum State{InPossession, Sold, TransferringOwnership, LostOrStolen, Destroyed}
 
     // asset struct
     struct Asset {
@@ -84,6 +84,7 @@ contract AssetOwnership {
 
     modifier sold(uint _serial) {
         require(assets[_serial].state == State.Sold, "This asset has not been sold");
+        _;
     }
 
     modifier transferringOwnership (uint _serial) {
@@ -187,15 +188,15 @@ contract AssetOwnership {
 
     // FETCH
     function fetchAsset(uint _serial) public view 
-    returns (string memory name, uint serial, uint value, address buyer, address owner, uint state) {
+    returns (string memory name, uint serial, uint value, address buyer, address _owner, uint state) {
         
         name = assets[_serial].name;
         serial = assets[_serial].serial;
         value = assets[_serial].value;
         buyer = assets[_serial].buyer;
-        owner = assets[_serial].owner;
+        _owner = assets[_serial].owner;
         state = assets[_serial].state;
 
-        return (name, serial, value, buyer, owner, state);
+        return (name, serial, value, buyer, _owner, state);
     }
 }
