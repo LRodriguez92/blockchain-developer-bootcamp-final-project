@@ -114,7 +114,7 @@ contract AssetOwnership {
 
     // creates new Asset struct and adds it to asset mapping
     function addAsset(string memory _name, uint _serial, uint _value) public returns (bool) {
-        // create a new asset in the asset mapping
+        
         assets[_serial] = Asset({
             name: _name,
             serial: _serial,
@@ -124,23 +124,21 @@ contract AssetOwnership {
             state: State.InPossession
         });
 
-        // increase asset count
         assetCount += 1;
 
-        // call an event
         emit LogInPossession(assetCount);
 
         return true;
     }
 
-    // STATE: LostOrStolen
+    // LOST OR STOLEN
     function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.LostOrStolen;
 
         emit LogLostOrStolen(_serial);
     }
 
-    // STATE: InPossession
+    // IN POSSESSION
     function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isLostorStolen(_serial) public {
         assets[_serial].state = State.InPossession;
 
@@ -148,7 +146,7 @@ contract AssetOwnership {
     }
 
 
-    // STATE: Destroyed
+    // DESTROY
     function destroyAsset(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.Destroyed;
 
@@ -187,4 +185,17 @@ contract AssetOwnership {
         emit LogInPossession(_serial);
     }
 
+    // FETCH
+    function fetchAsset(uint _serial) public view 
+    returns (string memory name, uint serial, uint value, address buyer, address owner, uint state) {
+        
+        name = assets[_serial].name;
+        serial = assets[_serial].serial;
+        value = assets[_serial].value;
+        buyer = assets[_serial].buyer;
+        owner = assets[_serial].owner;
+        state = assets[_serial].state;
+
+        return (name, serial, value, buyer, owner, state);
+    }
 }
