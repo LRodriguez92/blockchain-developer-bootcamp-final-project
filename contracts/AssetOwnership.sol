@@ -85,14 +85,19 @@ contract AssetOwnership {
         _;
     }
 
-
+    
     modifier checkValue(uint _serial) {
         uint _value = assets[_serial].value;
         uint amountToRefund = msg.value - _value;
         
         assets[_serial].buyer.transfer(amountToRefund);
-    _;
-  }
+        _;
+    }
+
+    modifier paidEnough (uint _value) {
+        require(msg.value >= _value);
+        _;
+    }
 
 
     /*
@@ -156,5 +161,7 @@ contract AssetOwnership {
 
         emit LogChangedValue(_serial, _value);
     }
+
+    // function buyAsset(uint _serial) payable 
 
 }
