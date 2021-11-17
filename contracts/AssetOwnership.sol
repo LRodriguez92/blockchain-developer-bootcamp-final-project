@@ -188,7 +188,7 @@ contract AssetOwnership {
 
     // FETCH
     function fetchAsset(uint _serial) public view 
-    returns (string memory name, uint serial, uint value, address buyer, address _owner, uint state) {
+    returns (string memory name, uint serial, uint value, address buyer, address _owner, State state) {
         
         name = assets[_serial].name;
         serial = assets[_serial].serial;
