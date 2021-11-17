@@ -13,7 +13,7 @@ contract AssetOwnership {
     mapping (uint => Asset) assets;
 
     // asset state
-    enum State{InPossession, TransferringOwnership, LostOrStolen, Destroyed}
+    enum State{InPossession, sold, TransferringOwnership, LostOrStolen, Destroyed}
 
     // asset struct
     struct Asset {
@@ -43,6 +43,8 @@ contract AssetOwnership {
      */
 
     event LogInPossession(uint serial);
+
+    event LogSold(uint serial);
 
     event LogTransferringOwnership(uint serial);
     
@@ -78,6 +80,10 @@ contract AssetOwnership {
     modifier isNotDestroyed (uint _serial) {
         require(assets[_serial].state != State.Destroyed, "This asset has been destroyed. No further actions are available");
         _;
+    }
+
+    modifier sold(uint _serial) {
+        require(assets[_serial].state == State.Sold, "This asset has not been sold");
     }
 
     modifier transferringOwnership (uint _serial) {
@@ -141,12 +147,6 @@ contract AssetOwnership {
         emit LogInPossession(_serial);
     }
 
-    // STATE: TransferringOwnership
-    function transferOwnership(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
-        assets[_serial].state = State.TransferringOwnership;
-
-        emit LogTransferringOwnership(_serial);
-    }
 
     // STATE: Destroyed
     function destroyAsset(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
@@ -162,10 +162,18 @@ contract AssetOwnership {
         emit LogChangedValue(_serial, _value);
     }
 
+    // BUY
     function buyAsset(uint _serial) inPossession(_serial) paidEnough(assets[_serial].value) checkValue(_serial) payable public {
         assets[_serial].owner.transfer(assets[_serial].value);
         assets[_serial].buyer = msg.sender;
 
+        assets[_serial].state = State.Sold;
+
+        emit LogSold(_serial);
+    }
+
+    // TRANSFER
+    function transferOwnership(uint _serial) verifyCaller(assets[_serial].owner) sold(_serial) public {
         assets[_serial].state = State.TransferringOwnership;
 
         emit LogTransferringOwnership(_serial);
