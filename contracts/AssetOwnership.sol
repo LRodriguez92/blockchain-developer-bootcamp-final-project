@@ -180,7 +180,7 @@ contract AssetOwnership {
 
     // RECEIVED
     function receiveAsset(uint _serial) verifyCaller(assets[_serial].buyer) transferringOwnership(_serial) public {
-        assets[_serial].owner = payable(msg.senders);
+        assets[_serial].owner = payable(msg.sender);
         assets[_serial].state = State.InPossession;
 
         emit LogInPossession(_serial);
