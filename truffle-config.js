@@ -20,6 +20,8 @@
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const dotenv = require('dotenv');
+const path = require("path");
+
 dotenv.config();
 const mnemonic = process.env.MNEMONIC;
 
@@ -34,6 +36,9 @@ module.exports = {
    * $ truffle test --network <network-name>
    */
 
+  // Adds contract folder to client in order to easily access ABI
+  contracts_build_directory: path.join(__dirname, "client/src/contracts"),
+  
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
