@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 contract AssetOwnership {
 
@@ -31,7 +31,7 @@ contract AssetOwnership {
      * Constructor
      */
 
-    constructor () {
+    constructor () public {
         owner = msg.sender;
         assetCount = 0;
     }
