@@ -5,6 +5,7 @@ import { useWallet, UseWalletProvider } from 'use-wallet'
 import './App.css';
 
 import NewAsset from './components/NewAsset';
+import FetchAsset from './components/FetchAsset';
 
 // const developmentContractAddress = '0x415De09609e14878c781349E95E4e8Af1943f3F7';
 
@@ -17,7 +18,6 @@ function App() {
 
   const wallet = useWallet()
 
-  const [serial, setSerial] = useState(0);
   const [getAsset, setGetAsset] = useState({});
 
   useEffect(() => {
@@ -25,14 +25,15 @@ function App() {
   }, [])
   
 
-  const fetchAsset = async (e) => {
-    e.preventDefault();
+  const fetchAsset = async (serial) => {
     console.log("Fetching asset");
 
     // const accounts = await window.ethereum.enable();
     // const account = account[0];
 
     const result = await AssetContract.methods.fetchAsset(serial).call();
+
+    console.log("Asset recieved: ", result);
 
     setGetAsset(result);
   }
@@ -61,6 +62,8 @@ function App() {
           <button onClick={() => wallet.reset()}>Disconnect MetaMask</button>
           
           <NewAsset createAsset={createAsset} />
+
+          <FetchAsset fetchAsset={fetchAsset}/>
         </div>
       ) : (
         <div>
@@ -68,7 +71,7 @@ function App() {
         </div>
       )}
 
-      <button onClick={fetchAsset}>Fetch Asset</button>
+
     </div>
   );
 }
