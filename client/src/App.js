@@ -66,7 +66,7 @@ function App() {
 
           <FetchAsset fetchAsset={fetchAsset}/>
 
-          <CurrentAsset asset={getAsset} />
+          <CurrentAsset asset={getAsset} account={wallet.account}/>
 
         </div>
       ) : (
