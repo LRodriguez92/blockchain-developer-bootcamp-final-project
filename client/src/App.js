@@ -6,6 +6,7 @@ import './App.css';
 
 import NewAsset from './components/NewAsset';
 import FetchAsset from './components/FetchAsset';
+import CurrentAsset from './components/CurrentAsset'
 
 // const developmentContractAddress = '0x415De09609e14878c781349E95E4e8Af1943f3F7';
 
@@ -65,16 +66,7 @@ function App() {
 
           <FetchAsset fetchAsset={fetchAsset}/>
 
-          {getAsset !== null ? (
-          <div>
-            <p>Name: {getAsset[0]}</p>
-            <p>Serial: {getAsset[1]}</p>
-            <p>Value: {getAsset[2]}</p>
-            <p>Buyer: {getAsset[3]}</p>
-            <p>Owner: {getAsset[4]}</p>
-          </div>)
-
-          : null}
+          <CurrentAsset asset={getAsset} />
 
         </div>
       ) : (
