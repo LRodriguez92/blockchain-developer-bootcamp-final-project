@@ -18,7 +18,7 @@ function App() {
 
   const wallet = useWallet()
 
-  const [getAsset, setGetAsset] = useState({});
+  const [getAsset, setGetAsset] = useState(null);
 
   useEffect(() => {
     console.log(AssetContract)
@@ -64,6 +64,18 @@ function App() {
           <NewAsset createAsset={createAsset} />
 
           <FetchAsset fetchAsset={fetchAsset}/>
+
+          {getAsset !== null ? (
+          <div>
+            <p>Name: {getAsset[0]}</p>
+            <p>Serial: {getAsset[1]}</p>
+            <p>Value: {getAsset[2]}</p>
+            <p>Buyer: {getAsset[3]}</p>
+            <p>Owner: {getAsset[4]}</p>
+          </div>)
+
+          : null}
+
         </div>
       ) : (
         <div>

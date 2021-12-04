@@ -16,7 +16,7 @@ const FetchAsset = (props) => {
 
     return (
         <div>
-            <h1>New Asset</h1>
+            <h1>Fetch Asset</h1>
             <form onSubmit={handleSubmit}>
                 <input name="serial" type="number" placeholder="Serial #" onChange={handleChange} />
                 <input type="submit" value="Fetch Asset"/>
