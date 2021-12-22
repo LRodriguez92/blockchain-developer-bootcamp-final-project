@@ -54,6 +54,21 @@ function App() {
     }
   }
 
+  const buyAsset = async (serial) => {
+    console.log("Buying asset: ", serial);
+    console.log("sender: ", wallet.account);
+
+    try {
+      const result = await AssetContract.methods.buyAsset(serial).send({
+        from: wallet.account,
+        value: web3.utils.toWei(getAsset[2], 'ether')
+      })
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <div className="App">
       {wallet.status === 'connected' ? (
@@ -66,7 +81,11 @@ function App() {
 
           <FetchAsset fetchAsset={fetchAsset}/>
 
-          <CurrentAsset asset={getAsset} account={wallet.account}/>
+          <CurrentAsset 
+          asset={getAsset} 
+          account={wallet.account}
+          buyAsset={buyAsset}
+          />
 
         </div>
       ) : (
