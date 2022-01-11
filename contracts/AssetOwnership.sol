@@ -68,8 +68,13 @@ contract AssetOwnership {
     
     
     
-    modifier verifyCaller (address _address) {
+    modifier verifyOwner (address _address) {
         require(msg.sender == _address, "You are not the owner of this asset");
+        _;
+    }
+
+    modifier verifyBuyer (address _address) {
+        require(msg.sender == _address, "You are not the buyer of this asset");
         _;
     }
 
@@ -139,14 +144,14 @@ contract AssetOwnership {
     }
 
     // LOST OR STOLEN
-    function reportLostOrStolen(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
+    function reportLostOrStolen(uint _serial) verifyOwner(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.LostOrStolen;
 
         emit LogLostOrStolen(_serial);
     }
 
     // IN POSSESSION
-    function reportFoundAndInPossession(uint _serial) verifyCaller(assets[_serial].owner) isLostorStolen(_serial) public {
+    function reportFoundAndInPossession(uint _serial) verifyOwner(assets[_serial].owner) isLostorStolen(_serial) public {
         assets[_serial].state = State.InPossession;
 
         emit LogInPossession(_serial);
@@ -154,14 +159,14 @@ contract AssetOwnership {
 
 
     // DESTROY
-    function destroyAsset(uint _serial) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
+    function destroyAsset(uint _serial) verifyOwner(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].state = State.Destroyed;
 
         emit LogDestroyed(_serial);
     }
 
     // VALUE: changeValueOfAsset
-    function changeValueOfAsset(uint _serial, uint _value) verifyCaller(assets[_serial].owner) inPossession(_serial) public {
+    function changeValueOfAsset(uint _serial, uint _value) verifyOwner(assets[_serial].owner) inPossession(_serial) public {
         assets[_serial].value = _value;
 
         emit LogChangedValue(_serial, _value);
@@ -169,7 +174,9 @@ contract AssetOwnership {
 
     // BUY
     function buyAsset(uint _serial) inPossession(_serial) paidEnough(assets[_serial].value) checkValue(_serial) payable public {
+        //TODO: Make sure the owner can't buy the contract
         
+        payable (address(this)).transfer(assets[_serial].value);
         assets[_serial].buyer = payable(msg.sender);
 
         assets[_serial].state = State.TransferringOwnership;
@@ -185,7 +192,7 @@ contract AssetOwnership {
     // }
 
     // RECEIVED
-    function receiveAsset(uint _serial) verifyCaller(assets[_serial].buyer) transferringOwnership(_serial) payable public {
+    function receiveAsset(uint _serial) verifyBuyer(assets[_serial].buyer) transferringOwnership(_serial) payable public {
         assets[_serial].owner.transfer(assets[_serial].value);
         assets[_serial].owner = payable(msg.sender);
         assets[_serial].state = State.InPossession;
