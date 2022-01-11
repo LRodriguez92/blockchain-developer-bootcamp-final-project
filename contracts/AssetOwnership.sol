@@ -19,7 +19,7 @@ contract AssetOwnership {
     mapping (uint => Asset) assets;
 
     // asset state
-    enum State{InPossession, Sold, TransferringOwnership, LostOrStolen, Destroyed}
+    enum State{InPossession, TransferringOwnership, LostOrStolen, Destroyed}
 
     // asset struct
     struct Asset {
@@ -88,10 +88,10 @@ contract AssetOwnership {
         _;
     }
 
-    modifier sold(uint _serial) {
-        require(assets[_serial].state == State.Sold, "This asset has not been sold");
-        _;
-    }
+    // modifier sold(uint _serial) {
+    //     require(assets[_serial].state == State.Sold, "This asset has not been sold");
+    //     _;
+    // }
 
     modifier transferringOwnership (uint _serial) {
         require(assets[_serial].state == State.TransferringOwnership, "Ownership has not been transferred.");
@@ -169,23 +169,24 @@ contract AssetOwnership {
 
     // BUY
     function buyAsset(uint _serial) inPossession(_serial) paidEnough(assets[_serial].value) checkValue(_serial) payable public {
-        assets[_serial].owner.transfer(assets[_serial].value);
+        
         assets[_serial].buyer = payable(msg.sender);
 
-        assets[_serial].state = State.Sold;
+        assets[_serial].state = State.TransferringOwnership;
 
         emit LogSold(_serial);
     }
 
     // TRANSFER
-    function transferOwnership(uint _serial) verifyCaller(assets[_serial].owner) sold(_serial) public {
-        assets[_serial].state = State.TransferringOwnership;
+    // function transferOwnership(uint _serial) verifyCaller(assets[_serial].owner) sold(_serial) public {
+    //     assets[_serial].state = State.TransferringOwnership;
 
-        emit LogTransferringOwnership(_serial);
-    }
+    //     emit LogTransferringOwnership(_serial);
+    // }
 
     // RECEIVED
-    function receiveAsset(uint _serial) verifyCaller(assets[_serial].buyer) transferringOwnership(_serial) public {
+    function receiveAsset(uint _serial) verifyCaller(assets[_serial].buyer) transferringOwnership(_serial) payable public {
+        assets[_serial].owner.transfer(assets[_serial].value);
         assets[_serial].owner = payable(msg.sender);
         assets[_serial].state = State.InPossession;
 
