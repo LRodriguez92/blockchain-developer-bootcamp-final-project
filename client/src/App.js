@@ -8,11 +8,11 @@ import NewAsset from './components/NewAsset';
 import FetchAsset from './components/FetchAsset';
 import CurrentAsset from './components/CurrentAsset'
 
-// const developmentContractAddress = '0x415De09609e14878c781349E95E4e8Af1943f3F7';
+const developmentContractAddress = '0xbf369f814E26bdDcD6554Bd4E534525750703937';
 
 const web3 = new Web3(Web3.givenProvider);
-const contractAddress = '0xe9f07FcbcE9055F29D9201F7dCb9575dC20Da29B';
-const AssetContract = new web3.eth.Contract(assetOwnershipAbi, contractAddress);
+const contractAddress = '0xB36870a42a2BB957cf058030454DEC77b0A93932';
+const AssetContract = new web3.eth.Contract(assetOwnershipAbi.abi, contractAddress);
 
 
 function App() {
@@ -41,10 +41,9 @@ function App() {
 
   const createAsset = async (asset) => {
     console.log("Creating asset: ", asset);
-
     try {
       const result = await AssetContract.methods.addAsset(asset.name, asset.serial, asset.value).send({
-        from: wallet.account
+        from: wallet.account,
       });
       console.log(result);
 
@@ -61,7 +60,7 @@ function App() {
     try {
       const result = await AssetContract.methods.buyAsset(serial).send({
         from: wallet.account,
-        value: web3.utils.toWei(getAsset[2], 'ether')
+        value: web3.utils.toWei(getAsset[2], 'ether'),
       })
       console.log(result);
     } catch (error) {
