@@ -78,6 +78,11 @@ contract AssetOwnership {
         _;
     }
 
+    modifier verifyNotOwner (address _address) {
+        require(msg.sender != _address, "You are already the owner of this asset");
+        _;
+    }
+
     modifier inPossession (uint _serial) {
         require(assets[_serial].state == State.InPossession, "The asset is not currently in your possession"); 
         _;
@@ -92,11 +97,6 @@ contract AssetOwnership {
         require(assets[_serial].state != State.Destroyed, "This asset has been destroyed. No further actions are available");
         _;
     }
-
-    // modifier sold(uint _serial) {
-    //     require(assets[_serial].state == State.Sold, "This asset has not been sold");
-    //     _;
-    // }
 
     modifier transferringOwnership (uint _serial) {
         require(assets[_serial].state == State.TransferringOwnership, "Ownership has not been transferred.");
@@ -173,9 +173,7 @@ contract AssetOwnership {
     }
 
     // BUY
-    function buyAsset(uint _serial) inPossession(_serial) paidEnough(assets[_serial].value) checkValue(_serial) payable public {
-        //TODO: Make sure the owner can't buy the contract
-        
+    function buyAsset(uint _serial) inPossession(_serial) paidEnough(assets[_serial].value) checkValue(_serial) verifyNotOwner(assets[_serial].owner) payable public {        
         payable (address(this)).transfer(assets[_serial].value);
         assets[_serial].buyer = payable(msg.sender);
 
@@ -183,13 +181,6 @@ contract AssetOwnership {
 
         emit LogSold(_serial);
     }
-
-    // TRANSFER
-    // function transferOwnership(uint _serial) verifyCaller(assets[_serial].owner) sold(_serial) public {
-    //     assets[_serial].state = State.TransferringOwnership;
-
-    //     emit LogTransferringOwnership(_serial);
-    // }
 
     // RECEIVED
     function receiveAsset(uint _serial) verifyBuyer(assets[_serial].buyer) transferringOwnership(_serial) payable public {
