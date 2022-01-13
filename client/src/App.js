@@ -11,7 +11,7 @@ import CurrentAsset from './components/CurrentAsset'
 const developmentContractAddress = '0xbf369f814E26bdDcD6554Bd4E534525750703937';
 
 const web3 = new Web3(Web3.givenProvider);
-const contractAddress = '0xB36870a42a2BB957cf058030454DEC77b0A93932';
+const contractAddress = '0xCBa1cA1EC871E900FaCb80f872B0C6c290E2553A';
 const AssetContract = new web3.eth.Contract(assetOwnershipAbi.abi, contractAddress);
 
 
@@ -40,6 +40,7 @@ function App() {
   }
 
   const createAsset = async (asset) => {
+    // asset.value = web3.utils.toWei(asset.value, 'ether')
     console.log("Creating asset: ", asset);
     try {
       const result = await AssetContract.methods.addAsset(asset.name, asset.serial, asset.value).send({
@@ -60,9 +61,32 @@ function App() {
     try {
       const result = await AssetContract.methods.buyAsset(serial).send({
         from: wallet.account,
+        to: contractAddress,
+        // value: getAsset[2]
         value: web3.utils.toWei(getAsset[2], 'ether'),
       })
+      let contractBalance = await web3.eth.getBalance(contractAddress);
+      contractBalance = web3.utils.fromWei(contractBalance, 'ether')
+      console.log("Contract balance: ", contractBalance);    
       console.log(result);
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const receiveAsset = async (serial) => {
+    console.log("Receiving asset: ", serial);
+    console.log("sender: ", wallet.account);
+
+    try {
+      const result = await AssetContract.methods.receiveAsset(serial).send({
+        from: wallet.account,
+      })
+      console.log(result);
+
+      let contractBalance = await web3.eth.getBalance(contractAddress);
+      console.log("Contract balance: ", contractBalance);
     } catch (error) {
       console.error(error);
     }
@@ -84,6 +108,7 @@ function App() {
           asset={getAsset} 
           account={wallet.account}
           buyAsset={buyAsset}
+          receiveAsset={receiveAsset}
           />
 
         </div>

@@ -4,7 +4,7 @@ pragma solidity >=0.6.0 <0.9.0;
 contract AssetOwnership {
 
     // owner
-    address public owner;
+    address payable public owner;
 
     // number of assets
     uint public assetCount;
@@ -37,8 +37,8 @@ contract AssetOwnership {
      * Constructor
      */
 
-    constructor () public {
-        owner = msg.sender;
+    constructor () public payable{
+        owner = payable(msg.sender);
         assetCount = 0;
     }
 
@@ -173,8 +173,9 @@ contract AssetOwnership {
     }
 
     // BUY
-    function buyAsset(uint _serial) inPossession(_serial) paidEnough(assets[_serial].value) checkValue(_serial) verifyNotOwner(assets[_serial].owner) payable public {        
-        payable (address(this)).transfer(assets[_serial].value);
+    function buyAsset(uint _serial) inPossession(_serial) verifyNotOwner(assets[_serial].owner) payable public {        
+        // TODO: Change and add modifiers
+        
         assets[_serial].buyer = payable(msg.sender);
 
         assets[_serial].state = State.TransferringOwnership;
@@ -184,8 +185,10 @@ contract AssetOwnership {
 
     // RECEIVED
     function receiveAsset(uint _serial) verifyBuyer(assets[_serial].buyer) transferringOwnership(_serial) payable public {
-        assets[_serial].owner.transfer(assets[_serial].value);
+        assets[_serial].owner.transfer(assets[_serial].value * 1000000000000000000);
+
         assets[_serial].owner = payable(msg.sender);
+        
         assets[_serial].state = State.InPossession;
 
         emit LogInPossession(_serial);

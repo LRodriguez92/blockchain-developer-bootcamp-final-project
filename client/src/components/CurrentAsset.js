@@ -2,8 +2,12 @@ import React from 'react';
 
 const CurrentAsset = (props) => {
 
-    const handleClick = () => {
+    const handleBuy = () => {
         props.buyAsset(props.asset[1])
+    }
+
+    const handleReceive = () => {
+        props.receiveAsset(props.asset[1])
     }
 
     return (
@@ -17,7 +21,10 @@ const CurrentAsset = (props) => {
                 <p>Owner: {props.asset[4]}</p>
 
                 {/* Checks if the connected acount is not the owner of the asset and displays the buy button */}
-                { props.account !== props.asset[4] ? <button onClick={handleClick}>Buy Asset</button> : null}
+                { props.account !== props.asset[4] ? <button onClick={handleBuy}>Buy Asset</button> : null}
+                
+                {/* TODO: Make sure only the buyer can see this AND the asset's state is "transferringOwnership*/}
+                <button onClick={handleReceive}>Confirm you have received the asset</button>
             </div>)
     
         :
