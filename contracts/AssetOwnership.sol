@@ -1,13 +1,62 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0 <0.9.0;
 
-contract AssetOwnership {
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-    // owner
-    address payable public owner;
+contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
+    using Counters for Counters.Counter;
 
-    // number of assets
-    uint public assetCount;
+    Counters.Counter private _tokenIdCounter;
+
+    constructor() ERC721("Asset Ownership", "ASSET") {}
+
+    function safeMint(address to, string memory uri) public {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+    }
+
+    // The following functions are overrides required by Solidity.
+
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+
+    /*****************************************************************
+     ****************************** Data ****************************
+     ****************************************************************/
+
 
     // Function to receive Ether. msg.data must be empty
     receive() external payable {}
@@ -19,59 +68,50 @@ contract AssetOwnership {
     mapping (uint => Asset) assets;
 
     // asset state
-    enum State{InPossession, TransferringOwnership, LostOrStolen, Destroyed}
+    enum State{InPossession, PendingTransfer, TransferringOwnership, LostOrStolen}
 
     // asset struct
     struct Asset {
+        uint tokenId;
         string name;
         uint serial;
         uint value;
         address payable buyer;
         address payable owner;
         State state;
+        string uri;
     }
 
+    /*****************************************************************
+     ****************************** Events ***************************
+     ****************************************************************/
 
+    event LogInPossession(uint tokenId);
 
-    /*
-     * Constructor
-     */
+    event LogSold(uint tokenId);
 
-    constructor () public payable{
-        owner = payable(msg.sender);
-        assetCount = 0;
-    }
-
-
-
-    /*
-     * Events
-     */
-
-    event LogInPossession(uint serial);
-
-    event LogSold(uint serial);
-
-    event LogTransferringOwnership(uint serial);
+    event LogTransferringOwnership(uint tokenId);
     
-    event LogLostOrStolen(uint serial);
+    event LogLostOrStolen(uint tokenId);
 
-    event LogDestroyed(uint serial);
+    event LogDestroyed(uint tokenId);
 
-    event LogChangedValue(uint serial, uint value);
+    event LogChangedValue(uint tokenId, uint value);
 
+    /*****************************************************************
+     **************************** Modifiers **************************
+     ****************************************************************/
 
-    /*
-     * Modifiers
-     */
-
-    
-    
-    
     modifier verifyOwner (address _address) {
         require(msg.sender == _address, "You are not the owner of this asset");
         _;
     }
+
+    modifier verifyTokenExists (uint _tokenId) {
+        require(_exists(_tokenId), "This token does not exist");
+        _;
+    }
+
 
     modifier verifyBuyer (address _address) {
         require(msg.sender == _address, "You are not the buyer of this asset");
@@ -83,32 +123,32 @@ contract AssetOwnership {
         _;
     }
 
-    modifier inPossession (uint _serial) {
-        require(assets[_serial].state == State.InPossession, "The asset is not currently in your possession"); 
+    modifier inPossession (uint _tokenId) {
+        require(assets[_tokenId].state == State.InPossession, "The asset is not currently being sold"); 
         _;
     }
 
-    modifier isLostorStolen (uint _serial) {
-        require(assets[_serial].state == State.LostOrStolen, "This asset has not been reported lost or stolen");
+    modifier isLostorStolen (uint _tokenId) {
+        require(assets[_tokenId].state == State.LostOrStolen, "This asset has not been reported lost or stolen");
         _;
     }
 
-    modifier isNotDestroyed (uint _serial) {
-        require(assets[_serial].state != State.Destroyed, "This asset has been destroyed. No further actions are available");
+    modifier pendingTransfer (uint _tokenId) {
+        require(assets[_tokenId].state == State.PendingTransfer, "Ownership has not been transferred.");
         _;
     }
 
-    modifier transferringOwnership (uint _serial) {
-        require(assets[_serial].state == State.TransferringOwnership, "Ownership has not been transferred.");
+    modifier transferringOwnership (uint _tokenId) {
+        require(assets[_tokenId].state == State.TransferringOwnership, "This asset has not been shipped or approved for ownership transfer.");
         _;
     }
 
     
-    modifier checkValue(uint _serial) {
-        uint _value = assets[_serial].value;
+    modifier checkValue(uint _tokenId) {
+        uint _value = assets[_tokenId].value;
         uint amountToRefund = msg.value - _value;
         
-        assets[_serial].buyer.transfer(amountToRefund);
+        assets[_tokenId].buyer.transfer(amountToRefund);
         _;
     }
 
@@ -117,94 +157,105 @@ contract AssetOwnership {
         _;
     }
 
+    /*****************************************************************
+     ****************************** Logic ****************************
+     ****************************************************************/
 
-    /*
-     * Functionality
-     */
+    // ADD
+    function addAsset(string memory _name, uint _serial, uint _value, string memory _uri) public returns (bool) {
+        uint tokenId = _tokenIdCounter.current();
 
-
-
-    // creates new Asset struct and adds it to asset mapping
-    function addAsset(string memory _name, uint _serial, uint _value) public returns (bool) {
-        
-        assets[_serial] = Asset({
+        assets[tokenId] = Asset({
+            tokenId: tokenId,
             name: _name,
             serial: _serial,
             value: _value,
             buyer: payable (address(0)),
             owner: payable (msg.sender),
-            state: State.InPossession
+            state: State.InPossession,
+            uri: _uri
         });
 
-        assetCount += 1;
+        safeMint(msg.sender, _uri);
 
-        emit LogInPossession(assetCount);
+        emit LogInPossession(tokenId);
 
         return true;
     }
 
-    // LOST OR STOLEN
-    function reportLostOrStolen(uint _serial) verifyOwner(assets[_serial].owner) inPossession(_serial) public {
-        assets[_serial].state = State.LostOrStolen;
+    // BUY
+    function buyAsset(uint _tokenId) inPossession(_tokenId) verifyNotOwner(assets[_tokenId].owner) verifyTokenExists(_tokenId) payable public {        
+        // TODO: Change and add modifiers and make sure money is sent
+        
+        assets[_tokenId].buyer = payable(msg.sender);
 
-        emit LogLostOrStolen(_serial);
+        assets[_tokenId].state = State.PendingTransfer;
+
+        emit LogSold(_tokenId);
+    }
+
+    // APPROVE FOR OWNERSHIP TRANSFER
+    function shipAssetAndApproveOwnershipTransfer(uint _tokenId) pendingTransfer(_tokenId) verifyOwner(assets[_tokenId].owner) verifyTokenExists(_tokenId) public {
+        _approve(assets[_tokenId].buyer, _tokenId);
+        
+        assets[_tokenId].state = State.TransferringOwnership;
+    }
+
+    // RECEIVE AND TRANSFER OWNERSHIP
+    function receiveAsset(uint _tokenId) verifyBuyer(assets[_tokenId].buyer) transferringOwnership(_tokenId) verifyTokenExists(_tokenId) payable public {
+        safeTransferFrom(assets[_tokenId].owner, assets[_tokenId].buyer, _tokenId);
+
+        assets[_tokenId].owner.transfer(assets[_tokenId].value * 1000000000000000000);
+
+        assets[_tokenId].owner = payable(msg.sender);
+
+        assets[_tokenId].buyer = payable(address(0));
+        
+        assets[_tokenId].state = State.InPossession;
+
+        emit LogInPossession(_tokenId);
+    }
+
+    // CHANGE VALUE
+    function changeValueOfAsset(uint _tokenId, uint _value) verifyOwner(assets[_tokenId].owner) inPossession(_tokenId) verifyTokenExists(_tokenId) public {
+        assets[_tokenId].value = _value;
+
+        emit LogChangedValue(_tokenId, _value);
+    }
+
+    // LOST OR STOLEN
+    function reportLostOrStolen(uint _tokenId) verifyOwner(assets[_tokenId].owner) inPossession(_tokenId) verifyTokenExists(_tokenId) public {
+        assets[_tokenId].state = State.LostOrStolen;
+
+        emit LogLostOrStolen(_tokenId);
     }
 
     // IN POSSESSION
-    function reportFoundAndInPossession(uint _serial) verifyOwner(assets[_serial].owner) isLostorStolen(_serial) public {
-        assets[_serial].state = State.InPossession;
+    function reportFoundAndInPossession(uint _tokenId) verifyOwner(assets[_tokenId].owner) isLostorStolen(_tokenId) verifyTokenExists(_tokenId) public {
+        assets[_tokenId].state = State.InPossession;
 
-        emit LogInPossession(_serial);
+        emit LogInPossession(_tokenId);
     }
-
 
     // DESTROY
-    function destroyAsset(uint _serial) verifyOwner(assets[_serial].owner) inPossession(_serial) public {
-        assets[_serial].state = State.Destroyed;
-
-        emit LogDestroyed(_serial);
+    function destroyAsset(uint _tokenId) verifyOwner(assets[_tokenId].owner) inPossession(_tokenId) verifyTokenExists(_tokenId) public {
+        _burn(_tokenId);
+        emit LogDestroyed(_tokenId);
     }
 
-    // VALUE: changeValueOfAsset
-    function changeValueOfAsset(uint _serial, uint _value) verifyOwner(assets[_serial].owner) inPossession(_serial) public {
-        assets[_serial].value = _value;
-
-        emit LogChangedValue(_serial, _value);
-    }
-
-    // BUY
-    function buyAsset(uint _serial) inPossession(_serial) verifyNotOwner(assets[_serial].owner) payable public {        
-        // TODO: Change and add modifiers
-        
-        assets[_serial].buyer = payable(msg.sender);
-
-        assets[_serial].state = State.TransferringOwnership;
-
-        emit LogSold(_serial);
-    }
-
-    // RECEIVED
-    function receiveAsset(uint _serial) verifyBuyer(assets[_serial].buyer) transferringOwnership(_serial) payable public {
-        assets[_serial].owner.transfer(assets[_serial].value * 1000000000000000000);
-
-        assets[_serial].owner = payable(msg.sender);
-        
-        assets[_serial].state = State.InPossession;
-
-        emit LogInPossession(_serial);
-    }
 
     // FETCH
-    function fetchAsset(uint _serial) public view 
-    returns (string memory name, uint serial, uint value, address buyer, address _owner, State state) {
-        
-        name = assets[_serial].name;
-        serial = assets[_serial].serial;
-        value = assets[_serial].value;
-        buyer = assets[_serial].buyer;
-        _owner = assets[_serial].owner;
-        state = assets[_serial].state;
+    function fetchAsset(uint _tokenId) verifyTokenExists(_tokenId) public view 
+    returns (uint tokenId, string memory name, uint serial, uint value, address buyer, address _owner, State state, string memory uri) {
+        tokenId = assets[_tokenId].tokenId;
+        name = assets[_tokenId].name;
+        serial = assets[_tokenId].serial;
+        value = assets[_tokenId].value;
+        buyer = assets[_tokenId].buyer;
+        _owner = assets[_tokenId].owner;
+        state = assets[_tokenId].state;
+        uri = assets[_tokenId].uri;
 
-        return (name, serial, value, buyer, _owner, state);
+        return (tokenId, name, serial, value, buyer, _owner, state, uri);
     }
 }
