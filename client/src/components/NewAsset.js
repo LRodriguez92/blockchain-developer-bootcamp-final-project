@@ -19,14 +19,13 @@ const NewAsset = (props) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("Submitting...", typeof newAsset.value);
-        // newAsset.value = parseFloat(newAsset.value);
-
-        // console.log("float value: ", newAsset.value);
 
         if (isNaN(newAsset.value)) {
             console.error("The value you entered is not a number!")
+        } else {
+            props.createAsset(newAsset);
         }
-        props.createAsset(newAsset);
+
     }
 
     return (
