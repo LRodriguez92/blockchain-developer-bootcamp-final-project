@@ -8,10 +8,8 @@ import NewAsset from './components/NewAsset';
 import FetchAsset from './components/FetchAsset';
 import CurrentAsset from './components/CurrentAsset'
 
-const developmentContractAddress = '0xbf369f814E26bdDcD6554Bd4E534525750703937';
-
 const web3 = new Web3(Web3.givenProvider);
-const contractAddress = '0x239280745Db699ff768ac51A095dAD01a775D643';
+const contractAddress = '0x880F36c0Bf33F34b1A3c77Ac87C2C87C36c5fD64';
 const AssetContract = new web3.eth.Contract(assetOwnershipAbi.abi, contractAddress);
 
 

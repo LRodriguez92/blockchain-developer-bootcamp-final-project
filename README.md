@@ -1,5 +1,7 @@
 # blockchain-developer-bootcamp-final-project
 
+My public ETH address for NFT: `0xfE6b82A6b82674EB4D2AB4b7e7fBeDda4c7D1c28`
+
 ## Giving your assets a digital identity
 
 With this dapp you will be able to give all of your valuables a digital identity whether it's a tv, car, computer, wedding ring, etc. This will serve as your proof of ownership for these products through the Ethereum blockchain. This will make your valuables easier to recover when they go missing or are stolen. 
