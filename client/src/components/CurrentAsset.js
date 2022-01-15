@@ -31,13 +31,13 @@ const CurrentAsset = (props) => {
                 
 
                 {/* Checks if the connected acount is not the owner of the asset and displays the buy button */}
-                { props.account !== props.asset[5] && props.asset[6] == 0 ? <button onClick={handleBuy}>Buy Asset</button> : null}
+                { props.account !== props.asset[5] && props.asset[6] === '0' ? <button onClick={handleBuy}>Purchase</button> : null}
 
                 {/* Only the owner can see this AND the asset's state is "PendingTransfer*/}
-                {props.account == props.asset[5] && props.asset[6] == 1 ? <button onClick={handleShip}>Confirm Asset Shipment</button> : null}
+                {props.account === props.asset[5] && props.asset[6] === '1' ? <button onClick={handleShip}>Confirm Shipment</button> : null}
                 
                 {/* Only the buyer can see this AND the asset's state is "TransferringOwnership*/}
-                {props.account == props.asset[4] && props.asset[6] == 2 ? <button onClick={handleReceive}>Confirm you have received the asset</button> : null}
+                {props.account === props.asset[4] && props.asset[6] === '2' ? <button onClick={handleReceive}>Confirm you have received the asset</button> : null}
             
 
             </div>)

@@ -201,7 +201,7 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     function receiveAsset(uint _tokenId) verifyBuyer(assets[_tokenId].buyer) transferringOwnership(_tokenId) verifyTokenExists(_tokenId) payable public {
         safeTransferFrom(assets[_tokenId].owner, assets[_tokenId].buyer, _tokenId);
 
-        assets[_tokenId].owner.transfer(assets[_tokenId].value * 1000000000000000000);
+        assets[_tokenId].owner.transfer(assets[_tokenId].value);
 
         assets[_tokenId].owner = payable(msg.sender);
 

@@ -11,7 +11,7 @@ import CurrentAsset from './components/CurrentAsset'
 const developmentContractAddress = '0xbf369f814E26bdDcD6554Bd4E534525750703937';
 
 const web3 = new Web3(Web3.givenProvider);
-const contractAddress = '0x799F11D463aFb06d76d68C2877Db6955ad0619D8';
+const contractAddress = '0xaD9a274C1734f2a4db08F2Fc6922e5cfD02cBA57';
 const AssetContract = new web3.eth.Contract(assetOwnershipAbi.abi, contractAddress);
 
 
@@ -34,14 +34,25 @@ function App() {
 
     const result = await AssetContract.methods.fetchAsset(token).call();
 
+    
+    // Convert from wei to ether for client
+    let valueInEther = await web3.utils.fromWei(result[3], 'ether')
+
+    result[3] = valueInEther;
+    
     console.log("Asset recieved: ", result);
 
     setGetAsset(result);
+
   }
 
   const createAsset = async (asset) => {
     // asset.value = web3.utils.toWei(asset.value, 'ether')
     console.log("Creating asset: ", asset);
+
+    asset.value = web3.utils.toWei(asset.value, 'ether')
+
+    console.log("Asset value in Wei: ", asset);
     try {
       const result = await AssetContract.methods.addAsset(asset.name, asset.serial, asset.value, asset.uri).send({
         from: wallet.account,
@@ -66,7 +77,7 @@ function App() {
         value: web3.utils.toWei(getAsset[3], 'ether'),
       })
       let contractBalance = await web3.eth.getBalance(contractAddress);
-      contractBalance = web3.utils.fromWei(contractBalance, 'ether')
+      contractBalance = await web3.utils.fromWei(contractBalance, 'ether')
       console.log("Contract balance: ", contractBalance);    
       console.log(result);
 
@@ -88,6 +99,8 @@ function App() {
 
       let contractBalance = await web3.eth.getBalance(contractAddress);
       console.log("Contract balance: ", contractBalance);
+
+      fetchAsset(token);
     } catch (error) {
       console.error(error);
     }
@@ -105,6 +118,8 @@ function App() {
 
       let contractBalance = await web3.eth.getBalance(contractAddress);
       console.log("Contract balance: ", contractBalance);
+
+      fetchAsset(token);
     } catch (error) {
       console.error(error);
     }

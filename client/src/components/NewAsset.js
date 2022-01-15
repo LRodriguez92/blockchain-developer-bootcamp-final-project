@@ -5,7 +5,7 @@ const NewAsset = (props) => {
     const [newAsset, setNewAsset] = useState({
         name: '',
         serial: 0,
-        value: 0,
+        value: '',
         uri: ''
       });
 
@@ -18,7 +18,14 @@ const NewAsset = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Submitting...");
+        console.log("Submitting...", typeof newAsset.value);
+        // newAsset.value = parseFloat(newAsset.value);
+
+        // console.log("float value: ", newAsset.value);
+
+        if (isNaN(newAsset.value)) {
+            console.error("The value you entered is not a number!")
+        }
         props.createAsset(newAsset);
     }
 
@@ -28,7 +35,7 @@ const NewAsset = (props) => {
             <form onSubmit={handleSubmit}>
                 <input name="name" type="text" placeholder="Asset name" onChange={handleChange} />
                 <input name="serial" type="number" placeholder="Serial #" onChange={handleChange} />
-                <input name="value" type="number" placeholder="Value" onChange={handleChange} />
+                <input name="value" type="text" placeholder="Value" onChange={handleChange} />
                 <input name="uri" type="text" placeholder="Image URI" onChange={handleChange} />
                 <input type="submit" value="Create Asset"/>
             </form>
