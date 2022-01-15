@@ -242,6 +242,8 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     // DESTROY
     function destroyAsset(uint _tokenId) verifyOwner(assets[_tokenId].owner) inPossession(_tokenId) verifyTokenExists(_tokenId) public {
         _burn(_tokenId);
+        delete assetList[_tokenId];
+
         emit LogDestroyed(_tokenId);
     }
 
