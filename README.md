@@ -21,6 +21,11 @@ You'll be able to also mint an NFT which will represent your ownership status of
 Deployed link goes here
 ```
 
+## Link to screencast demo
+
+[Watch demo here](https://www.loom.com/share/16390726715b4838bd37a649ec5c9ce7)
+
+
 ## Installation Instructions
 - Fork and clone this repo to your machine
 - Navigate to the cloned repo directory
