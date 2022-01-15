@@ -21,9 +21,6 @@ function App() {
 
   const [getAsset, setGetAsset] = useState(null);
 
-  const [allAssets, setAllAssets] = useState([]);
-  const [showAllAssets, setShowAllAssets] = useState(true);
-
   useEffect(() => {
     console.log(AssetContract)
   }, [])
@@ -173,8 +170,6 @@ function App() {
     </div>
   );
 }
-
-// export default App;
 
 export default () => (
   <UseWalletProvider
