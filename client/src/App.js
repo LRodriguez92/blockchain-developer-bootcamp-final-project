@@ -18,10 +18,20 @@ function App() {
   const wallet = useWallet()
 
   const [getAsset, setGetAsset] = useState(null);
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     console.log(AssetContract)
   }, [])
+
+  const displayAlert = async(message) => {
+    console.log("calling displayAlert");
+    await setAlert(message)
+
+    setTimeout(() => {
+      setAlert("")
+    },5000)
+  }
   
   const fetchAsset = async (token) => {
     console.log("Fetching asset");
@@ -29,17 +39,18 @@ function App() {
     // const accounts = await window.ethereum.enable();
     // const account = account[0];
 
-    const result = await AssetContract.methods.fetchAsset(token).call();
+      const result = await AssetContract.methods.fetchAsset(token).call();
+  
+      
+      // Convert from wei to ether for client
+      const valueInEther = await web3.utils.fromWei(result[3], 'ether')
+  
+      result[3] = valueInEther;
+      
+      console.log("Asset recieved: ", result);
+  
+      setGetAsset(result);
 
-    
-    // Convert from wei to ether for client
-    const valueInEther = await web3.utils.fromWei(result[3], 'ether')
-
-    result[3] = valueInEther;
-    
-    console.log("Asset recieved: ", result);
-
-    setGetAsset(result);
 
   }
 
@@ -56,6 +67,7 @@ function App() {
       console.log(result);
 
       // TODO: Display a response to the user
+      await displayAlert("Asset Created!");
     } catch (error) {
       console.error(error); 
     }
@@ -77,6 +89,7 @@ function App() {
       console.log(result);
 
       fetchAsset(token);
+      displayAlert("Asset bought! Awaiting shipping");
     } catch (error) {
       console.error(error);
     }
@@ -96,6 +109,7 @@ function App() {
       console.log("Contract balance: ", contractBalance);
 
       fetchAsset(token);
+      displayAlert("Asset received! You are not the owner!");
     } catch (error) {
       console.error(error);
     }
@@ -115,6 +129,7 @@ function App() {
       console.log("Contract balance: ", contractBalance);
 
       fetchAsset(token);
+      displayAlert("Asset shipped!");
     } catch (error) {
       console.error(error);
     }
@@ -130,6 +145,8 @@ function App() {
       })
 
       console.log(result);
+      displayAlert("Asset burned!");
+      setGetAsset(null);
     } catch (error) {
       console.error(error);
     }
@@ -140,27 +157,45 @@ function App() {
     <div className="App">
       {wallet.status === 'connected' ? (
         <div>
-          <div>Account: {wallet.account}</div>
-          <div>Balance: {wallet.balance}</div>
-          <button onClick={() => wallet.reset()}>Disconnect MetaMask</button>
+
+          <div className="header">
+            <h3>Account: {wallet.account}</h3>
+
+            <button onClick={() => wallet.reset()}>Disconnect MetaMask</button>
+          </div>
+
+          <h1>Own and Buy Assets!</h1>
+
+          <h2 className={alert === "Asset burned!" ? "red" : "green"}>{alert}</h2>
           
           <NewAsset createAsset={createAsset} />
 
+          
           <FetchAsset fetchAsset={fetchAsset}/>
 
-          <CurrentAsset 
-          asset={getAsset} 
-          account={wallet.account}
-          buyAsset={buyAsset}
-          receiveAsset={receiveAsset}
-          shipAsset={shipAsset}
-          burnAsset={burnAsset}
-          />
+          {getAsset ? 
+            <CurrentAsset 
+            asset={getAsset} 
+            account={wallet.account}
+            buyAsset={buyAsset}
+            receiveAsset={receiveAsset}
+            shipAsset={shipAsset}
+            burnAsset={burnAsset}
+            displayAlert={displayAlert}
+            />
+
+            :
+
+            null
+          }
 
         </div>
       ) : (
         <div>
-          <button onClick={() => {wallet.connect()}}>Connect MetaMask</button>
+          <div className="disconnected-header">
+            <button onClick={() => {wallet.connect()}}>Connect MetaMask</button>
+          </div>
+          <h1>Own and Buy Assets!</h1>
         </div>
       )}
 

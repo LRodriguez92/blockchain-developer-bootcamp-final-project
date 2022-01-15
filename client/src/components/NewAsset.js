@@ -29,14 +29,14 @@ const NewAsset = (props) => {
     }
 
     return (
-        <div>
+        <div className="form">
             <h1>New Asset</h1>
-            <form onSubmit={handleSubmit}>
+            <form className="form new-form" onSubmit={handleSubmit}>
                 <input name="name" type="text" placeholder="Asset name" onChange={handleChange} />
                 <input name="serial" type="number" placeholder="Serial #" onChange={handleChange} />
                 <input name="value" type="text" placeholder="Value" onChange={handleChange} />
                 <input name="uri" type="text" placeholder="Image URI" onChange={handleChange} />
-                <input type="submit" value="Create Asset"/>
+                <input id="submit-button" type="submit" value="Create Asset"/>
             </form>
         </div>
     )
