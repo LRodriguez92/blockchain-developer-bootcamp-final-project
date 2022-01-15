@@ -21,35 +21,13 @@ function App() {
 
   const [getAsset, setGetAsset] = useState(null);
 
+  const [allAssets, setAllAssets] = useState([]);
+  const [showAllAssets, setShowAllAssets] = useState(true);
+
   useEffect(() => {
     console.log(AssetContract)
-    getAllAssets()
   }, [])
   
-  const getAllAssets = async () => {
-    let supply = await AssetContract.methods.totalSupplyOfTokens().call();
-    console.log(supply);
-
-    let counter = 0;
-    let assets = []
-
-    while(true) {
-      try {
-        let asset = await AssetContract.methods.fetchAsset(counter).call()
-        assets.push(asset);
-        counter++;
-      } catch (error) {
-        if (assets.length != supply) {
-          counter++;
-        } else {
-          break;
-        }
-      }
-    }
-
-    console.log("Total supply of assets: ", assets);
-  }
-
   const fetchAsset = async (token) => {
     console.log("Fetching asset");
 
@@ -187,7 +165,7 @@ function App() {
         </div>
       ) : (
         <div>
-          <button onClick={() => wallet.connect()}>Connect MetaMask</button>
+          <button onClick={() => {wallet.connect()}}>Connect MetaMask</button>
         </div>
       )}
 
