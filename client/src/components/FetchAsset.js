@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 
 const FetchAsset = (props) => {
     
-    const [serial, setSerial] = useState(0);
+    const [token, setToken] = useState(0);
 
     const handleChange = (e) => {
-        setSerial(e.target.value)
+        setToken(e.target.value)
     }
 
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("Fetching...");
-        props.fetchAsset(serial);
+        props.fetchAsset(token);
     }
 
     return (
         <div>
             <h1>Fetch Asset</h1>
             <form onSubmit={handleSubmit}>
-                <input name="serial" type="number" placeholder="Serial #" onChange={handleChange} />
+                <input name="token" type="number" placeholder="Token ID #" onChange={handleChange} />
                 <input type="submit" value="Fetch Asset"/>
             </form>
         </div>

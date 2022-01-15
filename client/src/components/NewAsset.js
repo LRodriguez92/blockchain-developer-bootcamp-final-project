@@ -28,6 +28,7 @@ const NewAsset = (props) => {
                 <input name="name" type="text" placeholder="Asset name" onChange={handleChange} />
                 <input name="serial" type="number" placeholder="Serial #" onChange={handleChange} />
                 <input name="value" type="number" placeholder="Value" onChange={handleChange} />
+                <input name="uri" type="text" placeholder="Image URI" onChange={handleChange} />
                 <input type="submit" value="Create Asset"/>
             </form>
         </div>

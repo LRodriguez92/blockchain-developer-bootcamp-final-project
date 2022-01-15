@@ -11,7 +11,7 @@ import CurrentAsset from './components/CurrentAsset'
 const developmentContractAddress = '0xbf369f814E26bdDcD6554Bd4E534525750703937';
 
 const web3 = new Web3(Web3.givenProvider);
-const contractAddress = '0xCBa1cA1EC871E900FaCb80f872B0C6c290E2553A';
+const contractAddress = '0x799F11D463aFb06d76d68C2877Db6955ad0619D8';
 const AssetContract = new web3.eth.Contract(assetOwnershipAbi.abi, contractAddress);
 
 
@@ -26,13 +26,13 @@ function App() {
   }, [])
   
 
-  const fetchAsset = async (serial) => {
+  const fetchAsset = async (token) => {
     console.log("Fetching asset");
 
     // const accounts = await window.ethereum.enable();
     // const account = account[0];
 
-    const result = await AssetContract.methods.fetchAsset(serial).call();
+    const result = await AssetContract.methods.fetchAsset(token).call();
 
     console.log("Asset recieved: ", result);
 
@@ -43,7 +43,7 @@ function App() {
     // asset.value = web3.utils.toWei(asset.value, 'ether')
     console.log("Creating asset: ", asset);
     try {
-      const result = await AssetContract.methods.addAsset(asset.name, asset.serial, asset.value).send({
+      const result = await AssetContract.methods.addAsset(asset.name, asset.serial, asset.value, asset.uri).send({
         from: wallet.account,
       });
       console.log(result);
@@ -54,12 +54,12 @@ function App() {
     }
   }
 
-  const buyAsset = async (serial) => {
-    console.log("Buying asset: ", serial);
+  const buyAsset = async (token) => {
+    console.log("Buying asset: ", token);
     console.log("sender: ", wallet.account);
 
     try {
-      const result = await AssetContract.methods.buyAsset(serial).send({
+      const result = await AssetContract.methods.buyAsset(token).send({
         from: wallet.account,
         to: contractAddress,
         // value: getAsset[2]
@@ -75,12 +75,12 @@ function App() {
     }
   }
 
-  const receiveAsset = async (serial) => {
-    console.log("Receiving asset: ", serial);
+  const receiveAsset = async (token) => {
+    console.log("Receiving asset: ", token);
     console.log("sender: ", wallet.account);
 
     try {
-      const result = await AssetContract.methods.receiveAsset(serial).send({
+      const result = await AssetContract.methods.receiveAsset(token).send({
         from: wallet.account,
       })
       console.log(result);

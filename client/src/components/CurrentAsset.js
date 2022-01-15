@@ -11,14 +11,20 @@ const CurrentAsset = (props) => {
     }
 
     return (
-        // Checks is an asset was fetched
+        // Checks if an asset was fetched
+        
+
         props.asset !== null ? (
             <div>
-                <p>Name: {props.asset[0]}</p>
-                <p>Serial: {props.asset[1]}</p>
-                <p>Value: {props.asset[2]}</p>
-                <p>Buyer: {props.asset[3]}</p>
-                <p>Owner: {props.asset[4]}</p>
+                <img src={props.asset[7]}/>
+                <p>Token ID: {props.asset[0]}</p>
+                <p>Name: {props.asset[1]}</p>
+                <p>Serial: {props.asset[2]}</p>
+                <p>Value: {props.asset[3]}</p>
+                <p>Buyer: {props.asset[4]}</p>
+                <p>Owner: {props.asset[5]}</p>
+                <p>State: {props.asset[6]}</p>
+                
 
                 {/* Checks if the connected acount is not the owner of the asset and displays the buy button */}
                 { props.account !== props.asset[4] ? <button onClick={handleBuy}>Buy Asset</button> : null}
