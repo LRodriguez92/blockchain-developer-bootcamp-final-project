@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.6.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -143,17 +143,8 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _;
     }
 
-    
-    modifier checkValue(uint _tokenId) {
-        uint _value = assets[_tokenId].value;
-        uint amountToRefund = msg.value - _value;
-        
-        assets[_tokenId].buyer.transfer(amountToRefund);
-        _;
-    }
-
     modifier paidEnough (uint _value) {
-        require(msg.value >= _value);
+        require(msg.value >= _value, "You have insufficient funds");
         _;
     }
 
@@ -184,7 +175,12 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     }
 
     // BUY
-    function buyAsset(uint _tokenId) inPossession(_tokenId) verifyNotOwner(assets[_tokenId].owner) verifyTokenExists(_tokenId) payable public {        
+    function buyAsset(uint _tokenId) 
+    inPossession(_tokenId) 
+    verifyNotOwner(assets[_tokenId].owner) 
+    verifyTokenExists(_tokenId)
+    paidEnough(assets[_tokenId].value) 
+    payable public {        
         // TODO: Change and add modifiers and make sure money is sent
         
         assets[_tokenId].buyer = payable(msg.sender);
