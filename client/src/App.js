@@ -11,7 +11,7 @@ import CurrentAsset from './components/CurrentAsset'
 const developmentContractAddress = '0xbf369f814E26bdDcD6554Bd4E534525750703937';
 
 const web3 = new Web3(Web3.givenProvider);
-const contractAddress = '0x45E3766B3AfeC4f851E264D1F720dAbeFb7f5BBB';
+const contractAddress = '0x239280745Db699ff768ac51A095dAD01a775D643';
 const AssetContract = new web3.eth.Contract(assetOwnershipAbi.abi, contractAddress);
 
 
@@ -27,6 +27,9 @@ function App() {
   }, [])
   
   const getAllAssets = async () => {
+    let supply = await AssetContract.methods.totalSupplyOfTokens().call();
+    console.log(supply);
+
     let counter = 0;
     let assets = []
 
@@ -36,7 +39,11 @@ function App() {
         assets.push(asset);
         counter++;
       } catch (error) {
-        break;
+        if (assets.length != supply) {
+          counter++;
+        } else {
+          break;
+        }
       }
     }
 
