@@ -31,6 +31,8 @@ Deployed link goes here
 - Navigate to the cloned repo directory
 
 ## Solidity
+Make sure the port in the `development` network in the `truffle-config.js` file is set to `8545`
+
 Compile the solidity with the command:
 ```bash
 truffle compile
