@@ -11,7 +11,7 @@ import CurrentAsset from './components/CurrentAsset'
 const developmentContractAddress = '0xbf369f814E26bdDcD6554Bd4E534525750703937';
 
 const web3 = new Web3(Web3.givenProvider);
-const contractAddress = '0xaD9a274C1734f2a4db08F2Fc6922e5cfD02cBA57';
+const contractAddress = '0x45E3766B3AfeC4f851E264D1F720dAbeFb7f5BBB';
 const AssetContract = new web3.eth.Contract(assetOwnershipAbi.abi, contractAddress);
 
 
@@ -23,13 +23,24 @@ function App() {
 
   useEffect(() => {
     console.log(AssetContract)
-    // getAllAssets()
+    getAllAssets()
   }, [])
   
   const getAllAssets = async () => {
-    const totalAssets = await AssetContract.methods.totalSupply()
+    let counter = 0;
+    let assets = []
 
-    console.log("Total supply of assets: ", totalAssets);
+    while(true) {
+      try {
+        let asset = await AssetContract.methods.fetchAsset(counter).call()
+        assets.push(asset);
+        counter++;
+      } catch (error) {
+        break;
+      }
+    }
+
+    console.log("Total supply of assets: ", assets);
   }
 
   const fetchAsset = async (token) => {
@@ -137,8 +148,6 @@ function App() {
           <div>Account: {wallet.account}</div>
           <div>Balance: {wallet.balance}</div>
           <button onClick={() => wallet.reset()}>Disconnect MetaMask</button>
-          
-          <button onClick={getAllAssets}>All Assets</button>
           
           <NewAsset createAsset={createAsset} />
 
