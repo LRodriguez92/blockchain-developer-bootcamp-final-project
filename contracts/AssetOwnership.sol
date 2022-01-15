@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/// @title A contract to track and sell assets
+/// @author Leonardo Rodriguez
+/// @notice You can use this contract for basic asset and NFT creation/transfers
+
+/// @dev importing openzeppelin for ERC721 token
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+
 
 contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
@@ -21,7 +27,7 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, uri);
     }
 
-    // The following functions are overrides required by Solidity.
+    /// @dev The following functions are overrides required by Solidity.
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId)
         internal
@@ -53,15 +59,13 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     }
 
 
-    /*****************************************************************
-     ****************************** Data ****************************
-     ****************************************************************/
+    /// @dev This is the data being tracked on the contract 
 
 
-    // Function to receive Ether. msg.data must be empty
+    /// @dev Function to receive Ether. msg.data must be empty
     receive() external payable {}
 
-    // Fallback function is called when msg.data is not empty
+    /// @dev Fallback function is called when msg.data is not empty
     fallback() external payable {}
 
     // assets
@@ -82,13 +86,13 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         string uri;
     }
 
-    /*****************************************************************
-     ****************************** Events ***************************
-     ****************************************************************/
+    /// @dev All of the events that get emitted
 
     event LogInPossession(uint tokenId);
 
-    event LogSold(uint tokenId);
+    event LogBought(uint tokenId);
+
+    event LogShipped(uint tokenId);
 
     event LogTransferringOwnership(uint tokenId);
     
@@ -98,9 +102,7 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     event LogChangedValue(uint tokenId, uint value);
 
-    /*****************************************************************
-     **************************** Modifiers **************************
-     ****************************************************************/
+    /// @dev These are the modifiers used before transactions
 
     modifier verifyOwner (address _address) {
         require(msg.sender == _address, "You are not the owner of this asset");
@@ -148,9 +150,7 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _;
     }
 
-    /*****************************************************************
-     ****************************** Logic ****************************
-     ****************************************************************/
+    /// @dev All of the contract functions for the contract are found below
 
     // ADD
     function addAsset(string memory _name, uint _serial, uint _value, string memory _uri) public returns (bool) {
@@ -187,7 +187,7 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
         assets[_tokenId].state = State.PendingTransfer;
 
-        emit LogSold(_tokenId);
+        emit LogBought(_tokenId);
     }
 
     // APPROVE FOR OWNERSHIP TRANSFER
@@ -195,6 +195,8 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _approve(assets[_tokenId].buyer, _tokenId);
         
         assets[_tokenId].state = State.TransferringOwnership;
+
+        emit LogShipped(_tokenId);
     }
 
     // RECEIVE AND TRANSFER OWNERSHIP
@@ -240,7 +242,7 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     }
 
 
-    // FETCH
+    // @return The values of an asset
     function fetchAsset(uint _tokenId) verifyTokenExists(_tokenId) public view 
     returns (uint tokenId, string memory name, uint serial, uint value, address buyer, address _owner, State state, string memory uri) {
         tokenId = assets[_tokenId].tokenId;
