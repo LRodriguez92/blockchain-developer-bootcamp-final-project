@@ -65,11 +65,7 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     fallback() external payable {}
 
     // assets
-    mapping (uint => Asset) assets;
-
-    // to iterate over assets
-    Asset[] assetList;
-    
+    mapping (uint => Asset) assets;    
 
     // asset state
     enum State{InPossession, PendingTransfer, TransferringOwnership, LostOrStolen}
@@ -171,8 +167,6 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
             uri: _uri
         });
 
-        assetList.push(assets[tokenId]);
-
         safeMint(msg.sender, _uri);
 
         emit LogInPossession(tokenId);
@@ -261,10 +255,5 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         uri = assets[_tokenId].uri;
 
         return (tokenId, name, serial, value, buyer, _owner, state, uri);
-    }
-
-    function fetchAssetList() public view returns (Asset[] memory listOfAssets) {
-        listOfAssets = assetList;
-        return listOfAssets;
     }
 }
