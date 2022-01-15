@@ -6,6 +6,7 @@ const NewAsset = (props) => {
         name: '',
         serial: 0,
         value: 0,
+        uri: ''
       });
 
     const handleChange = (e) => {

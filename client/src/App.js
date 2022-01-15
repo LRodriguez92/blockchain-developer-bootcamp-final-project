@@ -62,14 +62,15 @@ function App() {
       const result = await AssetContract.methods.buyAsset(token).send({
         from: wallet.account,
         to: contractAddress,
-        // value: getAsset[2]
-        value: web3.utils.toWei(getAsset[2], 'ether'),
+        // value: getAsset[3]
+        value: web3.utils.toWei(getAsset[3], 'ether'),
       })
       let contractBalance = await web3.eth.getBalance(contractAddress);
       contractBalance = web3.utils.fromWei(contractBalance, 'ether')
       console.log("Contract balance: ", contractBalance);    
       console.log(result);
 
+      fetchAsset(token);
     } catch (error) {
       console.error(error);
     }
@@ -92,6 +93,24 @@ function App() {
     }
   }
 
+  const shipAsset = async (token) => {
+    console.log("Shipping asset: ", token);
+    console.log("sender: ", wallet.account);
+
+    try {
+      const result = await AssetContract.methods.shipAssetAndApproveOwnershipTransfer(token).send({
+        from: wallet.account,
+      })
+      console.log(result);
+
+      let contractBalance = await web3.eth.getBalance(contractAddress);
+      console.log("Contract balance: ", contractBalance);
+    } catch (error) {
+      console.error(error);
+    }
+
+  }
+
   return (
     <div className="App">
       {wallet.status === 'connected' ? (
@@ -109,6 +128,7 @@ function App() {
           account={wallet.account}
           buyAsset={buyAsset}
           receiveAsset={receiveAsset}
+          shipAsset={shipAsset}
           />
 
         </div>
