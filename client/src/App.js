@@ -23,8 +23,14 @@ function App() {
 
   useEffect(() => {
     console.log(AssetContract)
+    // getAllAssets()
   }, [])
   
+  const getAllAssets = async () => {
+    const totalAssets = await AssetContract.methods.totalSupply()
+
+    console.log("Total supply of assets: ", totalAssets);
+  }
 
   const fetchAsset = async (token) => {
     console.log("Fetching asset");
@@ -36,7 +42,7 @@ function App() {
 
     
     // Convert from wei to ether for client
-    let valueInEther = await web3.utils.fromWei(result[3], 'ether')
+    const valueInEther = await web3.utils.fromWei(result[3], 'ether')
 
     result[3] = valueInEther;
     
@@ -47,7 +53,6 @@ function App() {
   }
 
   const createAsset = async (asset) => {
-    // asset.value = web3.utils.toWei(asset.value, 'ether')
     console.log("Creating asset: ", asset);
 
     asset.value = web3.utils.toWei(asset.value, 'ether')
@@ -73,7 +78,6 @@ function App() {
       const result = await AssetContract.methods.buyAsset(token).send({
         from: wallet.account,
         to: contractAddress,
-        // value: getAsset[3]
         value: web3.utils.toWei(getAsset[3], 'ether'),
       })
       let contractBalance = await web3.eth.getBalance(contractAddress);
@@ -133,6 +137,8 @@ function App() {
           <div>Account: {wallet.account}</div>
           <div>Balance: {wallet.balance}</div>
           <button onClick={() => wallet.reset()}>Disconnect MetaMask</button>
+          
+          <button onClick={getAllAssets}>All Assets</button>
           
           <NewAsset createAsset={createAsset} />
 
