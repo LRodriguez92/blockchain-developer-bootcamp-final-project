@@ -17,9 +17,7 @@ You'll be able to also mint an NFT which will represent your ownership status of
 - Once users confirm they have received the asset, the funds will be released to the owner and the buyer will become the new owner of the asset and receive the NFT that accompanies it.
 
 ## Dapp link
-```
-Deployed link goes here
-```
+[Click here to go to the deployed site](https://asset-smart-contract.surge.sh/)
 
 ## Link to screencast demo
 
