@@ -254,4 +254,9 @@ contract AssetOwnership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
         return (tokenId, name, serial, value, buyer, _owner, state, uri);
     }
+
+    function totalSupplyOfTokens() public view returns (uint supply){
+        supply = totalSupply();
+        return supply;
+    }
 }

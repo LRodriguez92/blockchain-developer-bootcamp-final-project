@@ -138,8 +138,23 @@ function App() {
     } catch (error) {
       console.error(error);
     }
-
   }
+
+  const burnAsset = async (token) => {
+    console.log("Burning asset: ", token);
+    console.log("sender: ", wallet.account);
+
+    try {
+      const result = await AssetContract.methods.destroyAsset(token).send({
+        from: wallet.account,
+      })
+
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   return (
     <div className="App">
@@ -159,6 +174,7 @@ function App() {
           buyAsset={buyAsset}
           receiveAsset={receiveAsset}
           shipAsset={shipAsset}
+          burnAsset={burnAsset}
           />
 
         </div>

@@ -14,6 +14,10 @@ const CurrentAsset = (props) => {
         props.shipAsset(props.asset[0])
     }
 
+    const handleBurn = () => {
+        props.burnAsset(props.asset[0])
+    }
+
     return (
         // Checks if an asset was fetched
         
@@ -39,6 +43,8 @@ const CurrentAsset = (props) => {
                 {/* Only the buyer can see this AND the asset's state is "TransferringOwnership*/}
                 {props.account === props.asset[4] && props.asset[6] === '2' ? <button onClick={handleReceive}>Confirm you have received the asset</button> : null}
             
+                {/* Only the owner can see this AND the asset's state is "InPosession*/}
+                {props.account === props.asset[5] && props.asset[6] === '0' ? <button onClick={handleBurn}>Burn Asset</button> : null}
 
             </div>)
     
