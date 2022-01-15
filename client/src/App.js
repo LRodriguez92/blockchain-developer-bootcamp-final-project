@@ -109,7 +109,7 @@ function App() {
       console.log("Contract balance: ", contractBalance);
 
       fetchAsset(token);
-      displayAlert("Asset received! You are not the owner!");
+      displayAlert("Asset received! You are now the owner!");
     } catch (error) {
       console.error(error);
     }
